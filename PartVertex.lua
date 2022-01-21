@@ -324,5 +324,4 @@ function Class:RemoveVertex(v)
 end
 ]]
 
-
 return Class
