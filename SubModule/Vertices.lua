@@ -1,0 +1,41 @@
+local Class = {}
+Class.__index = Class
+
+function Class.new(pos, endpoint, connectedVerts)
+	local self = setmetatable({}, {__index = Class})
+	
+	if typeof(pos) == "CFrame" then
+		pos = pos.Position
+	end
+	
+	self.Pos = pos
+	
+	self.Next = {}
+	if connectedVerts then
+		self.Next = {connectedVerts}
+	end
+	
+	return self
+end
+
+function Class:AddNext(tableVerts)
+	for _, v in pairs(tableVerts) do
+		table.insert(self.Next, v)
+	end
+end
+
+function Class:RemoveNext()
+	
+end
+
+function Class:Combine(vert)
+	if self.Pos == vert.Pos then
+		for _, v in pairs(vert.Next) do
+			table.insert(self.Next, v)
+		end
+		return true
+	end
+	return false
+end
+
+return Class

@@ -1,0 +1,95 @@
+local Class = {}
+Class.__index = Class
+
+function Class.new(centerMass, vertices)
+	local self = setmetatable({}, {__index = Class})
+	
+	self.Corners = vertices
+	self.Center = self:GetCenter()
+	self.Normal = self:GetNormal(centerMass)
+	
+	return self
+end
+
+function Class:GetCenter()
+	local center = Vector3.new(0,0,0)
+	local i = 0
+	for _, v in pairs(self.Corners) do
+		center += v.Pos
+		i += 1
+	end
+	return center / math.max(i, 1)
+end
+
+function Class:GetNormal(cen)
+	if #self.Corners <= 2 then
+		warn("Insufficant information to get normal")
+		return false 
+	end
+	if #self.Corners >= 3 then
+		local a, b, c = self.Corners[1].Pos, self.Corners[2].Pos, self.Corners[3].Pos
+		local norm = ((b - a):Cross(c - a)).Unit
+		local dir = self.Center - cen
+		
+		if dir:Dot(norm) < 0 then
+			return -norm
+		end
+		
+		return norm
+	end
+end
+
+function Class:CheckPointOnPlane(p1)
+	return self.Normal:Dot(self.Center - p1) == 0
+end
+
+function Class:CheckPointOnFace(point)
+	if self:CheckPointOnPlane(point) then
+		
+		-- gets x and y axis to cast points on
+		local n = self.Normal
+		local x = (self.Corners[1].Pos - self.Corners[2].Pos).Unit
+		x = (x - x:Dot(n) * n).Unit
+		local y = n:Cross(x)
+		local point2D = Vector2.new(point:Dot(x), point:Dot(y))
+		
+		local polygon = {}
+		for _, v in pairs(self.Corners) do
+			table.insert(polygon, Vector2.new(v.Pos:Dot(x), v.Pos:Dot(y)))
+		end
+		
+		-- check if point in convex polygon
+		local A = {}
+		local B = {}
+		local C = {} 
+		for i = 1, #polygon do
+			local p1 = polygon[i]
+			local p2 = polygon[i % #polygon + 1]
+
+			local a = -(p2.Y - p1.Y)
+			local b = p2.X - p1.X
+			local c = -(a * p1.X + b * p1.Y)
+
+			table.insert(A, a)
+			table.insert(B, b)
+			table.insert(C, c)
+		end
+
+		local t1, t2 = true, true
+		for i = 1, #A do
+			local d = A[i] * point2D.X + B[i] * point2D.Y + C[i]
+
+			if d < 0 then
+				t1 = false
+			end
+			if d > 0 then
+				t2 = false
+			end
+		end
+
+		return t1 or t2
+	end
+	return false
+end
+
+return Class
