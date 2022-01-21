@@ -118,7 +118,7 @@ function GetCenter(verts)
 	return center / math.max(i, 1)
 end
 
-function GetInfoWedge(part) -- TODO: Fix Faces created
+function GetInfoWedge(part)
 	local v = {}
 
 	local size = part.Size
@@ -203,9 +203,10 @@ function Class:GetIntersectionVertices()
 	local vertsChecked = {}
 	for _, a in pairs(self.Vertices) do
 		table.insert(vertsChecked, a)
+		
 		-- Checks if begining vert is in other part
 		local positionTaken = false
-		for _, k in ipairs(self.IntersectingParts) do -- Getting position correctly
+		for _, k in ipairs(self.IntersectingParts) do
 			if IsPositionInPart(a.Pos, k, true) then
 				positionTaken = true
 				break
@@ -227,8 +228,6 @@ function Class:GetIntersectionVertices()
 				positionTaken = false
 				for _, k in ipairs(self.IntersectingParts) do
 					if IsPositionInPart(v, k, false) then
-						-- TODO: Positive zy and xy edges/vertexes are missing but this never prints; Definitly a connection problem
-						print("Position in part")
 						positionTaken = true
 						break
 					end
@@ -254,7 +253,7 @@ function Class:GetIntersectionVertices()
 			if #edgeVerts == 0 then
 				CreateOutlineTwoPoints(a.Pos, b.Pos, .02, workspace)
 			end
-			for i = 1, #edgeVerts-1, 2 do -- TODO: DEFNITLY THIS BLOCK OF CODE
+			for i = 1, #edgeVerts-1, 2 do
 				local j = i + 1
 				edgeVerts[i]:AddNext({edgeVerts[j]})
 				edgeVerts[j]:AddNext({edgeVerts[i]})
@@ -307,7 +306,7 @@ function Class:AddAdjacent(VertexPart)
 	table.insert(self.AdjacentParts, VertexPart)
 end
 
---[[
+--[[ Unused code
 function Class:AddVertex(v)
 	self.Vertices[#self.Vertices+1] = v
 end
